@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xr.bgmt.DAO.WxKpiApiMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+
+    </sql>
+
+    <!--获取待评价人员列表-->
+    <select id="getAssessederList" parameterType="string"  resultType="com.xr.bgmt.entity.form.SysUserForm">
+        SELECT DISTINCT
+            a.id,
+            a.openid,
+            a.name,
+            a.card_id AS cardId,
+            a.birthday,
+            a.phone,
+            a.sex,
+            a.login_account AS loginAccount,
+            a.login_pass AS loginpass,
+            a.is_valid AS isValid,
+            a.account_non_expired AS accountNonExpired,
+            a.credentials_non_expired AS credentialsNonExpired,
+            a.account_non_locked AS accountNonLocked,
+            a.email,
+            a.update_user_id AS updateUserId,
+            a.update_time AS updateTime,
+            a.create_user_id AS createUserId,
+            a.create_time AS createTime,
+            a.remark,
+            GROUP_CONCAT(CONCAT(b.`dept_id`,'(',c.id,')')) AS deptRoleId,
+            GROUP_CONCAT(CONCAT(d.name,'(',c.`name`,')')) AS deptRoleName,
+            c.`type`
+        FROM
+            t_sys_user a
+        LEFT JOIN t_sys_user_depts_roles b
+        ON a.`id` = b.`user_id`
+        INNER JOIN `t_sys_role` c
+        ON b.`role_id` = c.`id`
+        LEFT JOIN t_sys_dept d
+        ON b.`dept_id` = d.id
+        WHERE a.id <![CDATA[<>]]> #{assessorId}
+            AND b.`dept_id` IN
+            (SELECT
+            dept_id
+            FROM
+            `t_sys_user_depts_roles`
+            WHERE user_id = #{assessorId})
+            AND c.`type` <![CDATA[<>]]> '3'
+            And
+            case when #{isAss}='1' Then
+                c.`type` = c.`type`
+                else
+        c.`type` <![CDATA[<>]]> '0' end
+          GROUP BY   a.id,
+              a.openid,
+              a.name,
+              a.card_id,
+              a.birthday,
+              a.phone,
+              a.sex,
+              a.login_account,
+              a.login_pass,
+              a.is_valid,
+              a.account_non_expired,
+              a.credentials_non_expired,
+              a.account_non_locked,
+              a.email,
+              a.update_user_id,
+              a.update_time,
+              a.create_user_id,
+              a.create_time,
+              a.remark,c.`type`
+            order by c.`type`
+    </select>
+
+    <!--获取待评价人员评价结果-->
+    <select id="getAssessederRet" resultType="com.xr.bgmt.entity.form.WsKpiScoreRetForm">
+        SELECT
+        a.id,
+        a.assessor_id AS assessorId,
+        a.assessed_id AS assessedId,
+        a.rule_id AS ruleId,
+        a.total_score AS totalScore,
+        a.opinion,
+        a.month,
+        a.day,
+        a.sort,
+        a.is_valid AS isValid,
+        a.update_user_id AS updateUserId,
+        a.update_time AS update_time,
+        a.create_user_id AS createUserId,
+        a.create_time AS createTime,
+        a.remark ,
+        b.`name` AS ret
+        FROM
+        `t_ws_kpi_score_ret` a
+        LEFT JOIN `t_ws_kpi_ret_level` b
+        ON a.`total_score` <![CDATA[>=]]> b.`lowest_score`
+        AND a.`total_score` <![CDATA[<=]]> b.`highest_score`
+        WHERE a.month = #{month}
+        AND a.assessor_id =  #{assessorId}
+        AND a.`assessed_id` =  #{assessedId}
+    </select>
+
+    <!--获取考核细则-->
+    <select id="getKpiRule" resultType="com.xr.bgmt.entity.WsKpiRule">
+        SELECT DISTINCT
+            a.id,
+            a.name,
+            a.total_score as totalScore,
+            a.sort,
+            a.is_valid as isValid,
+            a.update_user_id as updateUserId,
+            a.update_time as updateTime,
+            a.create_user_id as createUserId,
+            a.create_time as createTime,
+            a.remark
+        FROM
+          `t_ws_kpi_rule` a
+          LEFT JOIN `t_sys_role` b
+            ON FIND_IN_SET(b.type, a.`apply_role_type`)
+          LEFT JOIN `t_sys_user_depts_roles` c
+            ON b.id = c.role_id
+          LEFT JOIN `t_sys_user` d
+            ON c.user_id = d.`id`
+        WHERE d.`id` = #{assessedId}
+    </select>
+</mapper>

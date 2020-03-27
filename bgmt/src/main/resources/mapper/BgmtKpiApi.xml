@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xr.bgmt.DAO.BgmtKpiApiMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xr.bgmt.entity.form.WsKpiScoreRetForm">
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, openid, name, card_id, birthday, phone, sex, login_account, login_pass, is_valid, account_non_expired, credentials_non_expired, account_non_locked, email, update_user_id, update_time, create_user_id, create_time, remark
+    </sql>
+
+    <select id="kpiDetailPage" resultType="com.xr.bgmt.entity.form.WsKpiScoreRetForm">
+        SELECT
+            a.id,
+            a.assessor_id AS assessorId,
+            b.`name` AS assessorName,
+            a.assessed_id AS assessedId,
+            c.`name` AS assessedName,
+            a.rule_id AS ruleId,
+            e.name AS ruleName,
+            a.total_score AS totalScore,
+            d.`name` AS retLevel,
+            a.opinion,
+            a.month,
+            a.day,
+            a.sort,
+            a.is_valid AS isValid,
+            a.update_user_id AS updateUserId,
+            a.update_time AS updateTime,
+            a.create_user_id AS createUserId,
+            a.create_time AS createTime,
+            a.remark
+        FROM
+            `t_ws_kpi_score_ret` a
+        LEFT JOIN `t_sys_user` b
+        ON a.`assessor_id` = b.`id`
+        LEFT JOIN `t_sys_user` c
+        ON a.`assessed_id` = c.`id`
+        LEFT JOIN `t_ws_kpi_rule` e
+        ON a.rule_id = e.id
+        LEFT JOIN `t_ws_kpi_ret_level` d
+        ON a.`total_score` <![CDATA[>=]]> d.`lowest_score`
+        AND a.`total_score` <![CDATA[<=]]> d.`highest_score`
+        WHERE a.`month` = #{month}
+    </select>
+
+    <select id="BgmtKpiRet" resultType="com.xr.bgmt.entity.form.BgmtKpiRet">
+        SELECT
+          a.`id` AS assessedId,
+          a.`name` AS  assessedName,
+          GROUP_CONCAT(DISTINCT b.`dept_id`) AS deptId,
+          GROUP_CONCAT(DISTINCT c.`name`) AS deptName,
+          GROUP_CONCAT(DISTINCT e.`id`) AS roleId,
+          GROUP_CONCAT(DISTINCT e.`name`) AS roleName,
+          GROUP_CONCAT(DISTINCT d.`id`) AS ruleId,
+          GROUP_CONCAT(DISTINCT d.`name`) AS ruleName
+        FROM
+          `t_sys_user` a
+          LEFT JOIN `t_sys_user_depts_roles` b
+          ON a.`id` = b.`user_id`
+          LEFT JOIN `t_sys_dept` c
+          ON b.`dept_id` = c.`id`
+          LEFT JOIN `t_sys_role` e
+          ON b.`role_id` = e.`id`
+          LEFT JOIN `t_ws_kpi_rule` d
+          ON FIND_IN_SET(e.`type`,d.`apply_role_type`)
+        WHERE 1=1
+        <if test="type != null">
+            AND a.`type`= #{type}
+        </if>
+        GROUP BY a.`id`
+    </select>
+
+
+</mapper>

@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'workserver'
+include 'common'
+include 'register'
+include 'gateway'
+include 'bgmt'
+include 'sso-client'
+include 'auth'
+

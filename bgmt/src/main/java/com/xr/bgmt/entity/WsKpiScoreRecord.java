@@ -1,5 +1,7 @@
 package com.xr.bgmt.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
@@ -22,12 +24,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("t_ws_kpi_score_record")
 @ApiModel(value="WsKpiScoreRecord对象", description="得分记录")
-public class WsKpiScoreRecord extends Model<WsKpiScoreRecord> {
+public class WsKpiScoreRecord extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty(name = "id", value = "编号")
-    private String id;
 
     @ApiModelProperty(name = "assessor_id", value = "考核人编号")
     private String assessorId;
@@ -57,27 +56,7 @@ public class WsKpiScoreRecord extends Model<WsKpiScoreRecord> {
     private Integer sort;
 
     @ApiModelProperty(name = "is_valid", value = "是否有效（0:否；1:是）")
+    @TableField(value = "is_valid", fill = FieldFill.INSERT)
     private Integer isValid;
-
-    @ApiModelProperty(name = "update_user_id", value = "更新人")
-    private String updateUserId;
-
-    @ApiModelProperty(name = "update_time", value = "更新时间")
-    private String updateTime;
-
-    @ApiModelProperty(name = "create_user_id", value = "创建人")
-    private String createUserId;
-
-    @ApiModelProperty(name = "create_time", value = "创建时间")
-    private String createTime;
-
-    @ApiModelProperty(name = "remark", value = "备注")
-    private String remark;
-
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
-    }
 
 }

@@ -1,7 +1,12 @@
 package com.xr.bgmt.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.xr.bgmt.entity.form.BgmtDataAnalysis;
+import com.xr.bgmt.service.WsKpiScoreRetService;
+import com.xr.bgmt.service.WsWxLoginLogService;
+import org.springframework.beans.factory.annotation.Value;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xr.bgmt.DAO.BgmtKpiApiMapper;
@@ -29,10 +34,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * <p>
@@ -47,6 +50,9 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
 
     private static final Logger logger = LoggerFactory.getLogger(BgmtKpiApiServiceImpl.class);
 
+    @Value("${filePath.server.result}")
+    private String rvDir;
+
     @Resource
     BgmtKpiApiMapper bgmtKpiApiMapper;
 
@@ -60,6 +66,20 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
         this.sysUserService = sysUserService;
     }
 
+
+    private WsWxLoginLogService wsWxLoginLogService;
+
+    @Autowired
+    public void setWsWxLoginLogService(WsWxLoginLogService wsWxLoginLogService) {
+        this.wsWxLoginLogService = wsWxLoginLogService;
+    }
+
+    private WsKpiScoreRetService wsKpiScoreRetService;
+
+    @Autowired
+    public void setWsKpiScoreRetService(WsKpiScoreRetService wsKpiScoreRetService) {
+        this.wsKpiScoreRetService = wsKpiScoreRetService;
+    }
 
     @Override
     public IPage<WsKpiScoreRetForm> kpiDetailPage(String month,Pageable pageable) throws ApiException {
@@ -144,9 +164,15 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
             dataMap.put("BgmtKpiRetList", list);
             dataMap.put("ftl", "result.ftl");
             ExcelUtil excelUtil = new ExcelUtil();
-            String filePath = "D://result.xls";
-            excelUtil.print(dataMap,filePath);
+            String filePath = System.getProperty("user.home") + rvDir.replace("//", File.separator) + File.separator + new String(month.getBytes("UTF-8"))+".xls";
+            // String filePath = "D://result.xls";
 
+            File filedir = new File( System.getProperty("user.home") + rvDir.replace("//", File.separator));
+            System.out.println(filedir.getPath());
+            if (!filedir.exists()) {
+                filedir.mkdirs();
+            }
+            excelUtil.print(dataMap,filePath);
             File newFile = new File(filePath);
             inputStream = new FileInputStream(newFile);
             outputStream = response.getOutputStream();
@@ -161,4 +187,143 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
             throw new ApiException("导出考评结果Excel异常", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Override
+    public BgmtDataAnalysis getDataAnalysis() throws ApiException {
+        BgmtDataAnalysis bgmtDataAnalysis = new BgmtDataAnalysis();
+        try {
+            // 查询本月小程序登录次数
+            QueryWrapper queryWrapper = new QueryWrapper();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+            Date date = new Date();
+            queryWrapper.eq("LEFT(create_time, 7)",df.format(date));
+            queryWrapper.eq("type",1);
+            bgmtDataAnalysis.setMonthLoginNum(wsWxLoginLogService.count(queryWrapper));
+            // 查询历史小程序注册次数
+            QueryWrapper queryWrapper2 = new QueryWrapper();
+            queryWrapper2.eq("type",0);
+            bgmtDataAnalysis.setTotalRegisterNum(wsWxLoginLogService.count(queryWrapper2));
+            // 查询历史小程序登录次数
+            QueryWrapper queryWrapper1 = new QueryWrapper();
+            queryWrapper1.eq("type",1);
+            bgmtDataAnalysis.setTotalLoginNum(wsWxLoginLogService.count(queryWrapper1));
+            // 查询本月评分次数
+            QueryWrapper queryWrapper3 = new QueryWrapper();
+            queryWrapper3.eq("LEFT(create_time, 7)",df.format(date));
+            bgmtDataAnalysis.setMonthKpiNum(wsKpiScoreRetService.count(queryWrapper3));
+
+            // 查询历史评分次数
+            bgmtDataAnalysis.setTotalKpiNum(wsKpiScoreRetService.count());
+        }catch (Exception e){
+            logger.error("获取数据分析结果异常", e);
+            e.printStackTrace();
+            throw new ApiException("获取数据分析结果异常", HttpStatus.BAD_REQUEST);
+        }
+        return bgmtDataAnalysis;
+    }
+
+    @Override
+    public List<BgmtKpiRet> getMonthKpiRetList() throws ApiException {
+        List<BgmtKpiRet> bgmtKpiRetList = new ArrayList<>();
+        try {
+            IPage<BgmtKpiRet> wsKpiScoreRetFormIPage;
+            Page<BgmtKpiRet> page = new Page<>(1, 9999);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+            Date date = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date); // 设置为当前时间
+            calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 1); // 设置为上一个月
+            date = calendar.getTime();
+            String month = df.format(date);
+            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(1,page);
+            bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
+            for(int i = 0;i<bgmtKpiRetList.size();i++){
+                BgmtKpiRet bgmtKpiRet = bgmtKpiRetList.get(i);
+                // 获取所有考评人
+                int noAssessNum = 0;
+                int assessNum = 0;
+                Double totalScore = 0D;
+                List<SysUserForm> sysUserFormList = wxKpiApiMapper.getAssessederList(bgmtKpiRet.getAssessedId(),"1");
+                // 判断是否考评
+                for(int j = 0;j<sysUserFormList.size();j++){
+                    // 获取month下的数据
+                    WsKpiScoreRetForm wsKpiScoreRetForm = wxKpiApiMapper.getAssessederRet(month, sysUserFormList.get(j).getId(), bgmtKpiRetList.get(i).getAssessedId());
+                    if(wsKpiScoreRetForm==null){
+                        noAssessNum = noAssessNum + 1;
+                    }else{
+                        assessNum = assessNum + 1;
+                        totalScore = totalScore+wsKpiScoreRetForm.getTotalScore();
+                    }
+                }
+                bgmtKpiRet.setNoAssessNum(noAssessNum);
+                bgmtKpiRet.setAssessNum(assessNum);
+                if(assessNum<=0){
+                    bgmtKpiRet.setAvgScore("0.00");
+                }else{
+                    DecimalFormat df1=new DecimalFormat("0.00");
+                    System.out.println(totalScore/assessNum);
+                    bgmtKpiRet.setAvgScore(df1.format(totalScore/assessNum));
+                    System.out.println(df1.format(totalScore/assessNum));
+                }
+                bgmtKpiRetList.set(i,bgmtKpiRet);
+            }
+            // 排序
+            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());
+        }catch (Exception e){
+            logger.error("获取本月考评排名异常", e);
+            e.printStackTrace();
+            throw new ApiException("获取本月考评排名异常", HttpStatus.BAD_REQUEST);
+        }
+        return bgmtKpiRetList;
+    }
+
+    @Override
+    public List<BgmtKpiRet> getKpiRetList() throws ApiException {
+        List<BgmtKpiRet> bgmtKpiRetList = new ArrayList<>();
+        try {
+            IPage<BgmtKpiRet> wsKpiScoreRetFormIPage;
+            Page<BgmtKpiRet> page = new Page<>(1, 9999);
+            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(1,page);
+            bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
+            for(int i = 0;i<bgmtKpiRetList.size();i++){
+                BgmtKpiRet bgmtKpiRet = bgmtKpiRetList.get(i);
+                // 获取所有考评人
+                int noAssessNum = 0;
+                int assessNum = 0;
+                Double totalScore = 0D;
+                List<SysUserForm> sysUserFormList = wxKpiApiMapper.getAssessederList(bgmtKpiRet.getAssessedId(),"1");
+                // 判断是否考评
+                for(int j = 0;j<sysUserFormList.size();j++){
+                    // 获取month下的数据
+                    WsKpiScoreRetForm wsKpiScoreRetForm = wxKpiApiMapper.getAssessederRet(null, sysUserFormList.get(j).getId(), bgmtKpiRetList.get(i).getAssessedId());
+                    if(wsKpiScoreRetForm==null){
+                        noAssessNum = noAssessNum + 1;
+                    }else{
+                        assessNum = assessNum + 1;
+                        totalScore = totalScore+wsKpiScoreRetForm.getTotalScore();
+                    }
+                }
+                bgmtKpiRet.setNoAssessNum(noAssessNum);
+                bgmtKpiRet.setAssessNum(assessNum);
+                if(assessNum<=0){
+                    bgmtKpiRet.setAvgScore("0.00");
+                }else{
+                    DecimalFormat df1=new DecimalFormat("0.00");
+                    System.out.println(totalScore/assessNum);
+                    bgmtKpiRet.setAvgScore(df1.format(totalScore/assessNum));
+                    System.out.println(df1.format(totalScore/assessNum));
+                }
+                bgmtKpiRetList.set(i,bgmtKpiRet);
+            }
+            // 排序
+            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());
+
+        }catch (Exception e){
+            logger.error("获取考评排名异常", e);
+            e.printStackTrace();
+            throw new ApiException("获取考评排名异常", HttpStatus.BAD_REQUEST);
+        }
+        return bgmtKpiRetList;
+    }
+
 }

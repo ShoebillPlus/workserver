@@ -1,8 +1,10 @@
 package com.xr.bgmt.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xr.bgmt.entity.SysUser;
+import com.xr.bgmt.entity.form.BgmtDataAnalysis;
 import com.xr.bgmt.entity.form.BgmtKpiRet;
 import com.xr.bgmt.entity.form.SysUserForm;
 import com.xr.bgmt.entity.form.WsKpiScoreRetForm;
@@ -10,6 +12,7 @@ import com.xr.bgmt.exception.ApiException;
 import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -39,4 +42,9 @@ public interface BgmtKpiApiService extends IService<WsKpiScoreRetForm> {
 
         void kpiRetExport(String month, Pageable pageable, HttpServletResponse response) throws ApiException;
 
+        BgmtDataAnalysis getDataAnalysis() throws ApiException;
+
+        List<BgmtKpiRet> getMonthKpiRetList() throws ApiException;
+
+        List<BgmtKpiRet> getKpiRetList() throws ApiException;
 }

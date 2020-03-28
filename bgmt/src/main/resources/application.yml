@@ -66,6 +66,9 @@ auth-authorize-url: http://127.0.0.1:${server.port}/oauth/authorize # 用户授�
 user-auth-server-url: http://127.0.0.1:${server.port} # 授权服务地址
 user-auth-token-url: http://127.0.0.1:${server.port}/oauth/token # 授权token服务地址
 user-auth-authorize-url: http://127.0.0.1:${server.port}/oauth/authorize # 用户授权服务地址
+filePath:
+  server:
+    result: /server/result
 security:
   oauth2:
     client:

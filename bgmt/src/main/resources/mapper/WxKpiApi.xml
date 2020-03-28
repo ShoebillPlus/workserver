@@ -99,7 +99,10 @@
         LEFT JOIN `t_ws_kpi_ret_level` b
         ON a.`total_score` <![CDATA[>=]]> b.`lowest_score`
         AND a.`total_score` <![CDATA[<=]]> b.`highest_score`
-        WHERE a.month = #{month}
+        WHERE 1=1
+        <if test=" month != null and month != ''">
+            AND a.month = #{month}
+        </if>
         AND a.assessor_id =  #{assessorId}
         AND a.`assessed_id` =  #{assessedId}
     </select>

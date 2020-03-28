@@ -31,6 +31,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/getOpenid").permitAll()
                 .antMatchers("/getPhone").permitAll()
                 .antMatchers("/sysParam/findByKey").permitAll()
+                .antMatchers("/bgmtKpi/kpiRetExport").permitAll()
                 .antMatchers("/loginout").permitAll()
                 .antMatchers("/wxBind").permitAll()
                 .antMatchers("/refreshToken").permitAll()

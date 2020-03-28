@@ -1,13 +1,11 @@
 package com.xr.bgmt.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xr.bgmt.entity.MyOAuth2AccessToken;
-import com.xr.bgmt.entity.SysParam;
-import com.xr.bgmt.entity.SysUser;
-import com.xr.bgmt.entity.WxLoginInfo;
+import com.xr.bgmt.entity.*;
 import com.xr.bgmt.exception.ApiException;
 import com.xr.bgmt.service.SysParamService;
 import com.xr.bgmt.service.SysUserService;
+import com.xr.bgmt.service.WsWxLoginLogService;
 import com.xr.bgmt.service.WxLoginApiService;
 import com.xr.bgmt.utils.HcUtil;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +51,13 @@ public class WxLoginApiServiceImpl implements WxLoginApiService {
         this.sysParamService = sysParamService;
     }
 
+    private WsWxLoginLogService wsWxLoginLogService;
+
+    @Autowired
+    public void setWsWxLoginLogService(WsWxLoginLogService wsWxLoginLogService) {
+        this.wsWxLoginLogService = wsWxLoginLogService;
+    }
+
     //获取token
     @Override
     public WxLoginInfo getOpenid(String code) throws ApiException {
@@ -76,18 +81,26 @@ public class WxLoginApiServiceImpl implements WxLoginApiService {
                     wxLoginInfo.setMessage("获取人员信息成功");
                     wxLoginInfo.setUserId(sysUser.getId());
                     //获取初始密码
-                    SysParam sysParam = sysParamService.findByKey("resetPassword");
-                    String password = sysParam == null ? "111111" : sysParam.getConfigValue();
+                    /*SysParam sysParam = sysParamService.findByKey("resetPassword");
+                    String password = sysParam == null ? "111111" : sysParam.getConfigValue();*/
 
                     RestTemplate restTemplate1 = new RestTemplate();
-                    String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=password&client_id=" + clientId + "&client_secret=" + clientScret
-                            + "&password=" + password + "&username=" + sysUser.getLoginAccount();
+                    /*String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=password&client_id=" + clientId + "&client_secret=" + clientScret
+                            + "&password=" + password + "&username=" + sysUser.getLoginAccount();*/
+                    String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=client_credentials&client_id=" + clientId + "&client_secret=" + clientScret;
 
                     ResponseEntity<OAuth2AccessToken> resTokenEntity = restTemplate1.postForEntity(requestTokenUrl, null, OAuth2AccessToken.class);
 
                     if (resEntity.getStatusCode().value() != 200) {
                         throw new ApiException("授权失败，请重新登录", HttpStatus.BAD_REQUEST);
                     } else {
+                        // 注册日志
+                        WsWxLoginLog wsWxLoginLog = new WsWxLoginLog();
+                        wsWxLoginLog.setOpenid(jsonObject1.getString("openid"));
+                        wsWxLoginLog.setType(1);
+                        wsWxLoginLog.setUserId(sysUser.getId());
+                        wsWxLoginLogService.add(wsWxLoginLog);
+
                         wxLoginInfo.setMessage("获取人员信息及Token成功");
                         wxLoginInfo.setOAuth2AccessToken(resTokenEntity.getBody());
                     }
@@ -119,14 +132,22 @@ public class WxLoginApiServiceImpl implements WxLoginApiService {
             } else {
                 sysUser.setOpenid(openid);
                 sysUserService.refresh(sysUser);
+                // 注册日志
+                WsWxLoginLog wsWxLoginLog = new WsWxLoginLog();
+                wsWxLoginLog.setOpenid(openid);
+                wsWxLoginLog.setPhone(phone);
+                wsWxLoginLog.setType(0);
+                wsWxLoginLog.setUserId(sysUser.getId());
+                wsWxLoginLogService.add(wsWxLoginLog);
             }
             //获取初始密码
-            SysParam sysParam = sysParamService.findByKey("resetPassword");
-            String password = sysParam == null ? "111111" : sysParam.getConfigValue();
+            /*SysParam sysParam = sysParamService.findByKey("resetPassword");
+            String password = sysParam == null ? "111111" : sysParam.getConfigValue();*/
 
             RestTemplate restTemplate = new RestTemplate();
-            String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=password&client_id=" + clientId + "&client_secret=" + clientScret
-                    + "&password=" + password + "&username=" + sysUser.getLoginAccount();
+            /*String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=password&client_id=" + clientId + "&client_secret=" + clientScret
+                    + "&password=" + password + "&username=" + sysUser.getLoginAccount();*/
+            String requestTokenUrl = authServerUrl + "/oauth/token?grant_type=client_credentials&client_id=" + clientId + "&client_secret=" + clientScret;
 
             ResponseEntity<OAuth2AccessToken> resEntity = restTemplate.postForEntity(requestTokenUrl, null, OAuth2AccessToken.class);
             if (resEntity.getStatusCode().value() != 200) {

@@ -52,7 +52,6 @@ public class WsKpiScoreRetServiceImpl extends ServiceImpl<WsKpiScoreRetMapper, W
     @Transactional(rollbackFor = Exception.class)
     public void add(WsKpiScoreRet wsKpiScoreRet) throws ApiException {
         try {
-            wsKpiScoreRet.setId(HcUtil.getUUID(true));
             this.save(wsKpiScoreRet);
             logger.debug("添加得分结果成功" + wsKpiScoreRet.getId());
         } catch (ApiException e) {
@@ -82,9 +81,6 @@ public class WsKpiScoreRetServiceImpl extends ServiceImpl<WsKpiScoreRetMapper, W
     @Transactional(rollbackFor = Exception.class)
     public void refresh(WsKpiScoreRet wsKpiScoreRet) throws ApiException {
         try {
-            if (StringUtils.isBlank(wsKpiScoreRet.getId())) {
-                throw new ApiException("编号不能为空", HttpStatus.BAD_REQUEST);
-            }
             UpdateWrapper<WsKpiScoreRet> wrapper = new UpdateWrapper();
             wrapper.eq("id",wsKpiScoreRet.getId());
             this.update(wsKpiScoreRet,wrapper);

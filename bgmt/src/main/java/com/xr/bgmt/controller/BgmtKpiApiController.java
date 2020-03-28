@@ -1,7 +1,9 @@
 package com.xr.bgmt.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xr.bgmt.entity.WsKpiScoreRet;
+import com.xr.bgmt.entity.form.BgmtDataAnalysis;
 import com.xr.bgmt.entity.form.BgmtKpiRet;
 import com.xr.bgmt.entity.form.WsKpiScoreRetForm;
 import com.xr.bgmt.exception.ApiException;
@@ -21,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -67,7 +70,7 @@ public class BgmtKpiApiController {
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "考评结果信息", notes = "考评结果信息")
+    @ApiOperation(value = "考评结果导出", notes = "考评结果导出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query", required = true, value = "当前页"),
             @ApiImplicitParam(name = "size", paramType = "query", required = true, value = "每页数"),
@@ -78,6 +81,34 @@ public class BgmtKpiApiController {
         bgmtKpiApiService.kpiRetExport(month,pageable,response);
         return ResponseEntity.ok().build();
     }
+
+    @ApiOperation(value = "考评数据结果导出", notes = "考评数据结果导出")
+    @ApiImplicitParams({
+    })
+    @GetMapping("/getDataAnalysis")
+    public ResponseEntity<BgmtDataAnalysis> getDataAnalysis() throws ApiException {
+        BgmtDataAnalysis bgmtDataAnalysis = bgmtKpiApiService.getDataAnalysis();
+        return new ResponseEntity<>(bgmtDataAnalysis, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "本月考评排名", notes = "本月考评排名")
+    @ApiImplicitParams({
+    })
+    @GetMapping("/getMonthKpiRetList")
+    public ResponseEntity<List<BgmtKpiRet>> getMonthKpiRetList() throws ApiException {
+        List<BgmtKpiRet> bgmtKpiRetList = bgmtKpiApiService.getMonthKpiRetList();
+        return new ResponseEntity<>(bgmtKpiRetList, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "考评总排名", notes = "考评总排名")
+    @ApiImplicitParams({
+    })
+    @GetMapping("/getKpiRetList")
+    public ResponseEntity<List<BgmtKpiRet>> getKpiRetList() throws ApiException {
+        List<BgmtKpiRet> bgmtKpiRetList = bgmtKpiApiService.getKpiRetList();
+        return new ResponseEntity<>(bgmtKpiRetList, HttpStatus.OK);
+    }
+
 
 
 }

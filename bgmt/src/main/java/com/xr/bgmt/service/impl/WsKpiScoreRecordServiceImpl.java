@@ -1,5 +1,6 @@
 package com.xr.bgmt.service.impl;
 
+import com.xr.bgmt.entity.WsKpiDept;
 import com.xr.bgmt.entity.WsKpiScoreRecord;
 import com.xr.bgmt.DAO.WsKpiScoreRecordMapper;
 import com.xr.bgmt.service.WsKpiScoreRecordService;
@@ -52,8 +53,15 @@ public class WsKpiScoreRecordServiceImpl extends ServiceImpl<WsKpiScoreRecordMap
     @Transactional(rollbackFor = Exception.class)
     public void add(WsKpiScoreRecord wsKpiScoreRecord) throws ApiException {
         try {
+            UpdateWrapper<WsKpiScoreRecord> wrapper = new UpdateWrapper();
+            wrapper.eq("assessor_id",wsKpiScoreRecord.getAssessorId());
+            wrapper.eq("assessed_id",wsKpiScoreRecord.getAssessedId());
+            wrapper.eq("rule_id",wsKpiScoreRecord.getRuleId());
+            wrapper.eq("level_id",wsKpiScoreRecord.getLevelId());
+            wrapper.eq("month",wsKpiScoreRecord.getMonth());
+            wsKpiScoreRecordMapper.delete(wrapper);
             wsKpiScoreRecord.setIsValid(1);
-        this.save(wsKpiScoreRecord);
+            this.save(wsKpiScoreRecord);
         logger.debug("添加得分记录成功" + wsKpiScoreRecord.getId());
         } catch (ApiException e) {
             logger.error("添加得分记录错误:" + e.getMessage(), e);

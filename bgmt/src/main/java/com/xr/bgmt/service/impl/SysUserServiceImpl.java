@@ -14,6 +14,7 @@ import com.xr.bgmt.service.SysParamService;
 import com.xr.bgmt.service.SysUserService;
 
 import java.util.Date;
+import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
@@ -173,5 +174,44 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return sysUser;
+    }
+
+    public List<SysUser> findByMinister(Long id) throws ApiException {
+        List<SysUser> sysUserList;
+        try {
+            sysUserList = sysUserMapper.findByMinister(id);
+            logger.debug("查询除董事长外的公司领导信息成功");
+        } catch (Exception e) {
+            logger.error("查询除董事长外的公司领导信息异常", e);
+            e.printStackTrace();
+            throw new ApiException("查询除董事长外的公司领导信息异常", HttpStatus.BAD_REQUEST);
+        }
+        return sysUserList;
+    }
+
+    public List<SysUser> findBySameDept(Long id,String month) throws ApiException {
+        List<SysUser> sysUserList;
+        try {
+            sysUserList = sysUserMapper.findBySameDept(id,month);
+            logger.debug("查询要评论人信息成功");
+        } catch (Exception e) {
+            logger.error("查询要评论人信息异常", e);
+            e.printStackTrace();
+            throw new ApiException("查询要评论人信息异常", HttpStatus.BAD_REQUEST);
+        }
+        return sysUserList;
+    }
+
+    public int checkDept(Long id1,Long id2) throws ApiException {
+        int ret;
+        try {
+            ret = sysUserMapper.checkDept(id1,id2);
+            logger.debug("判断人员是否同一部门成功");
+        } catch (Exception e) {
+            logger.error("判断人员是否同一部门异常", e);
+            e.printStackTrace();
+            throw new ApiException("判断人员是否同一部门异常", HttpStatus.BAD_REQUEST);
+        }
+        return ret;
     }
 }

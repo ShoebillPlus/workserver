@@ -48,4 +48,114 @@
         WHERE 1=1
         GROUP BY a.`id`
     </select>
+    <select id="findByMinister" resultType="com.xr.bgmt.entity.SysUser">
+        SELECT DISTINCT
+        a.id,
+        a.openid,
+        a.name,
+        a.card_id AS cardId,
+        a.birthday,
+        a.phone,
+        a.sex,
+        a.type,
+        a.login_account AS loginAccount,
+        a.login_pass AS loginpass,
+        a.is_valid AS isValid,
+        a.account_non_expired AS accountNonExpired,
+        a.credentials_non_expired AS credentialsNonExpired,
+        a.account_non_locked AS accountNonLocked,
+        a.email,
+        a.update_user_id AS updateUserId,
+        a.update_time AS updateTime,
+        a.create_user_id AS createUserId,
+        a.create_time AS createTime,
+        a.remark
+        FROM `t_sys_user` a
+        LEFT JOIN `t_sys_user_depts_roles` b
+        ON a.`id` = b.`user_id`
+        LEFT JOIN `t_sys_role` c
+        ON b.`role_id` = c.`id`
+        WHERE a.type = 1
+        AND b.`dept_id` = 2
+        AND c.`type` <![CDATA[<>]]> 0
+        <if test = " id != null ">
+            AND a.`id` = #{id}
+        </if>
+    </select>
+    <select id="findBySameDept" resultType="com.xr.bgmt.entity.SysUser">
+        SELECT DISTINCT
+        a.id,
+        a.openid,
+        a.name,
+        a.card_id AS cardId,
+        a.birthday,
+        a.phone,
+        a.sex,
+        a.type,
+        a.login_account AS loginAccount,
+        a.login_pass AS loginpass,
+        a.is_valid AS isValid,
+        a.account_non_expired AS accountNonExpired,
+        a.credentials_non_expired AS credentialsNonExpired,
+        a.account_non_locked AS accountNonLocked,
+        a.email,
+        a.update_user_id AS updateUserId,
+        a.update_time AS updateTime,
+        a.create_user_id AS createUserId,
+        a.create_time AS createTime,
+        a.remark,
+        CASE WHEN d.`total_score` IS NULL THEN 0 ELSE 1 END AS isKpi ,
+        CASE WHEN c.type = 1 THEN 1 ELSE 2 END AS ruleId
+        FROM
+        `t_sys_user` a
+        LEFT JOIN `t_sys_user_depts_roles` b
+        ON a.`id` = b.`user_id`
+        LEFT JOIN `t_sys_role` c
+        ON b.`role_id` = c.`id`
+        LEFT JOIN  `t_ws_kpi_score_ret` d
+        ON d.`month` = #{month}
+        AND d.`assessor_id` = #{id}
+        AND a.`id` = d.`assessed_id`
+        WHERE a.type = 1
+        AND b.`dept_id` IN
+        (SELECT
+        aa.`dept_id`
+        FROM
+        t_sys_user_depts_roles aa
+        WHERE aa.`user_id` = #{id}
+        UNION
+        SELECT
+        bb.dept_id
+        FROM
+        `t_ws_kpi_dept` bb
+        WHERE bb.`user_id` = #{id}
+        AND bb.month = #{month})
+        AND c.`type` <![CDATA[<>]]> 0
+        AND a.id <![CDATA[<>]]> #{id}
+    </select>
+    <select id="checkDept" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        (SELECT
+        a.id,
+        b.`dept_id`
+        FROM
+        `t_sys_user` a
+        LEFT JOIN `t_sys_user_depts_roles` b
+        ON a.id = b.`user_id`) aa
+        LEFT JOIN
+        (SELECT
+        a.id,
+        b.`dept_id`
+        FROM
+        `t_sys_user` a
+        LEFT JOIN `t_sys_user_depts_roles` b
+        ON a.id = b.`user_id`) bb
+        ON aa.dept_id = bb.dept_id
+        WHERE aa.id = #{id1}
+        AND bb.id = #{id2}
+        AND aa.dept_id <![CDATA[<>]]> 2
+    </select>
+
 </mapper>

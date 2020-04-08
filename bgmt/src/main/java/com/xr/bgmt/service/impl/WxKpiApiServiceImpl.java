@@ -97,9 +97,8 @@ public class WxKpiApiServiceImpl implements WxKpiApiService {
         map.put("month", month);
         List<SysUserForm> retList = new ArrayList<>();
         try {
-            List<SysUserForm> sysUserFormList = wxKpiApiMapper.getAssessederList(assessorId,"0");
+            List<SysUserForm> sysUserFormList = wxKpiApiMapper.getAssessederList(assessorId,"0",month);
             for (SysUserForm sysUserForm : sysUserFormList) {
-
                 WsKpiScoreRetForm wsKpiScoreRetForm = wxKpiApiMapper.getAssessederRet(month, assessorId, sysUserForm.getId());
                 if (wsKpiScoreRetForm == null) {
                     sysUserForm.setIsAssess(false);
@@ -146,21 +145,29 @@ public class WxKpiApiServiceImpl implements WxKpiApiService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitRet(WxKpiRet wxKpiRet) throws ApiException {
-
         try {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+            Date date = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date); // 设置为当前时间
+            calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 1); // 设置为上一个月
+            date = calendar.getTime();
+            String month = df.format(date);
+            wxKpiRet.setMonth(month);
             Double totalScore = 0D;
             WsKpiScoreRet wsKpiScoreRet = JSONObject.toJavaObject((JSON)JSON.toJSON(wxKpiRet),WsKpiScoreRet.class);
             WsKpiScoreRecord wsKpiScoreRecord = JSONObject.toJavaObject((JSON)JSON.toJSON(wxKpiRet),WsKpiScoreRecord.class);
+            SimpleDateFormat df1 = new SimpleDateFormat("d");
             for(int i =0;i<wxKpiRet.getWxKpiRetDetailList().size();i++){
-
                 wsKpiScoreRecord.setLevelId(wxKpiRet.getWxKpiRetDetailList().get(i).getLevelId());
-                SimpleDateFormat df = new SimpleDateFormat("d");
-                Date date = new Date();
-                wsKpiScoreRecord.setDay(df.format(date));
+
+                wsKpiScoreRecord.setMonth(month);
+                wsKpiScoreRecord.setDay(df1.format(date));
                 wsKpiScoreRecord.setScore(wxKpiRet.getWxKpiRetDetailList().get(i).getScore());
                 wsKpiScoreRecordService.add(wsKpiScoreRecord);
                 totalScore = totalScore + wxKpiRet.getWxKpiRetDetailList().get(i).getScore();
         }
+            wsKpiScoreRet.setDay(df1.format(date));
             wsKpiScoreRet.setTotalScore(totalScore);
             wsKpiScoreRetService.add(wsKpiScoreRet);
             logger.debug("提交考评结果成功" );

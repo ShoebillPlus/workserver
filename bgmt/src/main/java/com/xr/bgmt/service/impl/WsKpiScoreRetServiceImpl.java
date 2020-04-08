@@ -52,6 +52,13 @@ public class WsKpiScoreRetServiceImpl extends ServiceImpl<WsKpiScoreRetMapper, W
     @Transactional(rollbackFor = Exception.class)
     public void add(WsKpiScoreRet wsKpiScoreRet) throws ApiException {
         try {
+            UpdateWrapper<WsKpiScoreRet> wrapper = new UpdateWrapper();
+            wrapper.eq("assessor_id",wsKpiScoreRet.getAssessorId());
+            wrapper.eq("assessed_id",wsKpiScoreRet.getAssessedId());
+            wrapper.eq("rule_id",wsKpiScoreRet.getRuleId());
+
+            wrapper.eq("month",wsKpiScoreRet.getMonth());
+            wsKpiScoreRetMapper.delete(wrapper);
             this.save(wsKpiScoreRet);
             logger.debug("添加得分结果成功" + wsKpiScoreRet.getId());
         } catch (ApiException e) {

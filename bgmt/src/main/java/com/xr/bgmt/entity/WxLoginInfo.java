@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_sys_param")
 @ApiModel(value="WxLoginInfo对象", description="微信登录信息")
 public class WxLoginInfo extends Model<WxLoginInfo> {
 

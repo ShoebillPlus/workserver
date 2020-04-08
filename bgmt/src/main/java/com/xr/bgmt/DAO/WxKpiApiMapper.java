@@ -25,7 +25,7 @@ public interface WxKpiApiMapper {
      * @return
      * @throws Exception
      */
-    List<SysUserForm> getAssessederList(@Param("assessorId") String assessorId,@Param("isAss") String isAss) throws Exception;
+    List<SysUserForm> getAssessederList(@Param("assessorId") String assessorId,@Param("isAss") String isAss,@Param("month") String month) throws Exception;
 
     /**
      * 获取月份考核信息

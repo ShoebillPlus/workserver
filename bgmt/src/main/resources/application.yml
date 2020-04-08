@@ -127,9 +127,9 @@ eureka:
       defaultZone: http://${eureka.host:127.0.0.1}:${eureka.port:8099}/eureka/
   httpclient:
     connection-timeout: 90000
-auth-server-url: https://117.73.253.39:8098/bgmt # 服务地址
-auth-token-url: https://117.73.253.39:8098/bgmt/oauth/token # 授权token服务地址
-auth-authorize-url: https://117.73.253.39:8098/bgmt/oauth/authorize # 用户授权服务地址
+auth-server-url: https://118.190.158.21:8098/bgmt # 服务地址
+auth-token-url: https://118.190.158.21:8098/bgmt/oauth/token # 授权token服务地址
+auth-authorize-url: https://118.190.158.21:8098/bgmt/oauth/authorize # 用户授权服务地址
 user-auth-server-url: http://127.0.0.1:${server.port} # 授权服务地址
 user-auth-token-url: http://127.0.0.1:${server.port}/oauth/token # 授权token服务地址
 user-auth-authorize-url: http://127.0.0.1:${server.port}/oauth/authorize # 用户授权服务地址

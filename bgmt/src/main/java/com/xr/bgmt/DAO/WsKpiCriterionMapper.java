@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author yanwei
- * @since 2020-03-11
+ * @since 2020-04-07
  */
 public interface WsKpiCriterionMapper extends BaseMapper<WsKpiCriterion> {
 

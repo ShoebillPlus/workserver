@@ -69,7 +69,7 @@
   </Style>
  </Styles>
  <Worksheet ss:Name="Sheet1">
-  <Table ss:ExpandedColumnCount="5" ss:ExpandedRowCount="${BgmtKpiRetList?size + 10}" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="7" ss:ExpandedRowCount="${BgmtKpiRetList?size + 10}" x:FullColumns="1"
    x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="13.5">
    <Column ss:AutoFitWidth="0" ss:Width="84"/>
    <Column ss:AutoFitWidth="0" ss:Width="86.25"/>
@@ -80,16 +80,20 @@
     <Cell ss:MergeAcross="4" ss:StyleID="s19"><Data ss:Type="String">绩效考评结果</Data></Cell>
    </Row>
    <Row>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">姓名</Data></Cell>
     <Cell ss:StyleID="s18"><Data ss:Type="String">部门名称</Data></Cell>
-    <Cell ss:StyleID="s18"><Data ss:Type="String">被考评人</Data></Cell>
-    <Cell ss:StyleID="s18"><Data ss:Type="String">未考评人数</Data></Cell>
-    <Cell ss:StyleID="s18"><Data ss:Type="String">已考评人数</Data></Cell>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">未被考评数</Data></Cell>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">已被考评数</Data></Cell>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">未考评数</Data></Cell>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">已考评数</Data></Cell>
     <Cell ss:StyleID="s18"><Data ss:Type="String">平均分</Data></Cell>
    </Row>
    <#list BgmtKpiRetList as BgmtKpiRet>
    <Row>
-    <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.deptName!}</Data></Cell>
     <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.assessedName!}</Data></Cell>
+    <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.deptName!}</Data></Cell>
+    <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.noAssessedNum!}</Data></Cell>
+    <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.assessedNum!}</Data></Cell>
     <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.noAssessNum!}</Data></Cell>
     <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.assessNum!}</Data></Cell>
     <Cell ss:StyleID="s16"><Data ss:Type="String">${BgmtKpiRet.avgScore!}</Data></Cell>

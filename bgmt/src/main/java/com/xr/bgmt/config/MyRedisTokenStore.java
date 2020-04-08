@@ -40,7 +40,6 @@ public class MyRedisTokenStore implements TokenStore {
     public void setAuthenticationKeyGenerator(AuthenticationKeyGenerator authenticationKeyGenerator) {
         this.authenticationKeyGenerator = authenticationKeyGenerator;
     }
-
     public void setSerializationStrategy(RedisTokenStoreSerializationStrategy serializationStrategy) {
         this.serializationStrategy = serializationStrategy;
     }

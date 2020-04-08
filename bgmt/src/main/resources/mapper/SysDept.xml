@@ -17,4 +17,29 @@
 
     </select>
 
+    <select id="findDeptsNoMe" resultType="com.xr.bgmt.entity.SysDept">
+        SELECT
+          a.id,
+          a.name,
+          a.parent_id AS parentId,
+          a.level,
+          a.sort,
+          a.is_valid AS isValid,
+          a.update_user_id AS updateUserId,
+          a.update_time AS updateTime,
+          a.create_user_id AS createUserId,
+          a.create_time AS createTime,
+          a.remark
+        FROM
+          `t_sys_dept` a
+        WHERE a.id NOT IN
+          (SELECT
+            dept_id
+          FROM
+            `t_sys_user_depts_roles`
+          WHERE user_id = #{userId})
+          AND a.`level` = 2
+
+    </select>
+
 </mapper>

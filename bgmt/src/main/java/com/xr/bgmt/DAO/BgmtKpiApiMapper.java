@@ -36,7 +36,7 @@ public interface BgmtKpiApiMapper extends BaseMapper<WsKpiScoreRetForm> {
      * @param
      * @return
      */
-    IPage<BgmtKpiRet> BgmtKpiRet(@Param("type") int type, IPage<BgmtKpiRet> page);
+    IPage<BgmtKpiRet> BgmtKpiRet(@Param("month") String month, IPage<BgmtKpiRet> page);
 
 
 }

@@ -24,7 +24,7 @@ public class MabatisPlusGenerator {
     //作者
     private static String authorName="yanwei";
     //要生成的表名
-    private static String[] tables= {"t_ws_wx_login_log"};
+    private static String[] tables= {"t_ws_kpi_relation"};
     //table前缀
     private static String prefix="t_";
 

@@ -2,13 +2,15 @@ package com.xr.bgmt.utils;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.security.Security;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 public class HcUtil {
@@ -26,6 +28,21 @@ public class HcUtil {
         } else {
             return str;
         }
+    }
+    /**
+     * 获得月份
+     *
+     * @param i 前推后推月数
+     * @return UUID值
+     */
+    public static String getMonth(int i) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date); // 设置为当前时间
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + i); // 设置为上一个月
+        date = calendar.getTime();
+        return df.format(date);
     }
 
     public static void main(String[] args) {

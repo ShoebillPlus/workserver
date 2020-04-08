@@ -89,4 +89,12 @@ public class SysUser extends BaseEntity {
     @ApiModelProperty(name = "email", value = "邮箱")
     private String email;
 
+    @ApiModelProperty(name = "isKpi", value = "是否被评论")
+    @TableField(exist = false)
+    private int isKpi;
+
+    @ApiModelProperty(name = "ruleId", value = "适用规则")
+    @TableField(exist = false)
+    private Long ruleId;
+
 }

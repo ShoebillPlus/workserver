@@ -7,6 +7,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xr.bgmt.exception.ApiException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
 /**
  * <p>
  * 机构部门 服务类
@@ -51,5 +54,7 @@ public interface SysDeptService extends IService<SysDept> {
       * @throws ApiException 异常信息
       */
       void refresh(SysDept sysDept) throws ApiException;
+
+      List<SysDept> findDeptsNoMe(Long userId) throws ApiException;
 
 }

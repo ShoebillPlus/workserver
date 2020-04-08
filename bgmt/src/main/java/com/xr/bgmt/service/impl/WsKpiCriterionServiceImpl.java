@@ -1,6 +1,5 @@
 package com.xr.bgmt.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xr.bgmt.entity.WsKpiCriterion;
 import com.xr.bgmt.DAO.WsKpiCriterionMapper;
 import com.xr.bgmt.service.WsKpiCriterionService;
@@ -24,7 +23,7 @@ import com.xr.bgmt.utils.HcUtil;
  * </p>
  *
  * @author yanwei
- * @since 2020-03-11
+ * @since 2020-04-07
  */
 @Service
 public class WsKpiCriterionServiceImpl extends ServiceImpl<WsKpiCriterionMapper, WsKpiCriterion> implements WsKpiCriterionService {
@@ -35,15 +34,11 @@ public class WsKpiCriterionServiceImpl extends ServiceImpl<WsKpiCriterionMapper,
     WsKpiCriterionMapper wsKpiCriterionMapper;
 
     @Override
-    public IPage<WsKpiCriterion> findPage(Pageable pageable,String ruleId) throws ApiException {
+    public IPage<WsKpiCriterion> findPage(Pageable pageable) throws ApiException {
         IPage<WsKpiCriterion> retPage;
         try {
             Page<WsKpiCriterion> page = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
-            QueryWrapper queryWrapper = new QueryWrapper();
-            if(StringUtils.isNotBlank(ruleId)){
-                queryWrapper.eq("rule_id", ruleId);
-            }
-            retPage = this.page(page,queryWrapper);
+            retPage = this.page(page);
             logger.debug("查询绩效指标列表成功");
         } catch (Exception e) {
             logger.error("查询绩效指标列表异常", e);

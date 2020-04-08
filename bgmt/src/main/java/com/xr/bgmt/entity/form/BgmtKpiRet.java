@@ -37,13 +37,25 @@ public class BgmtKpiRet extends Model<BgmtKpiRet> {
     @ApiModelProperty(name = "ruleName", value = "规则名称")
     private String ruleName;
 
-    @ApiModelProperty(name = "noAssessNum", value = "未考评人数")
+    @ApiModelProperty(name = "noAssessedNum", value = "未被考评")
+    private int noAssessedNum;
+
+    @ApiModelProperty(name = "assessedNum", value = "已被考评")
+    private int assessedNum;
+
+    @ApiModelProperty(name = "noAssessNum", value = "未考评")
     private int noAssessNum;
 
-    @ApiModelProperty(name = "assessNum", value = "已考评人数")
+    @ApiModelProperty(name = "assessNum", value = "已考评")
     private int assessNum;
 
     @ApiModelProperty(name = "avgScore", value = "平均得分")
     private String avgScore;
+
+    @ApiModelProperty(name = "retScore", value = "实际得分")
+    private String retScore;
+
+    @ApiModelProperty(name = "typeNum", value = "类型数")
+    private int typeNum;
 
 }

@@ -69,5 +69,4 @@ public class WxLoginApiController {
     public ResponseEntity<JSONObject> getPhone(@Param("sessionKey")String sessionKey, @Param("iv")String iv, @Param("encryptData")String encryptData) throws ApiException {
         return ResponseEntity.ok(wxLoginApiService.getPhone(sessionKey,iv,encryptData));
     }
-
 }

@@ -46,7 +46,15 @@
             dept_id
             FROM
             `t_sys_user_depts_roles`
-            WHERE user_id = #{assessorId})
+            WHERE user_id = #{assessorId}
+            UNION
+            SELECT
+                dept_id
+            FROM
+                `t_ws_kpi_dept`
+            WHERE user_id = #{assessorId}
+            AND `month` = #{month}
+            )
             AND c.`type` <![CDATA[<>]]> '3'
             And
             case when #{isAss}='1' Then
@@ -90,7 +98,7 @@
         a.is_valid AS isValid,
         a.update_user_id AS updateUserId,
         a.update_time AS update_time,
-        a.create_user_id AS createUserId,
+        a.create_user_id AS getAssessederListcreateUserId,
         a.create_time AS createTime,
         a.remark ,
         b.`name` AS ret

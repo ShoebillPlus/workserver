@@ -136,4 +136,17 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         }
     }
 
+    public List<SysDept> findDeptsNoMe(Long userId) throws ApiException {
+        List<SysDept> sysDeptList;
+        try {
+            sysDeptList = sysDeptMapper.findDeptsNoMe(userId);
+            logger.debug("查询除自己外的部门信息成功");
+        } catch (Exception e) {
+            logger.error("查询除自己外的部门信息异常", e);
+            e.printStackTrace();
+            throw new ApiException("查询除自己外的部门信息异常", HttpStatus.BAD_REQUEST);
+        }
+        return sysDeptList;
+    }
+
 }

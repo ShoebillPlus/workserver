@@ -1,5 +1,7 @@
 package com.xr.bgmt.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -101,8 +103,8 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
         IPage<BgmtKpiRet> wsKpiScoreRetFormIPage;
         try {
             Page<BgmtKpiRet> page = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
-            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(1,page);
-            List<BgmtKpiRet> bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
+            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(month,page);
+           /* List<BgmtKpiRet> bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
             for(int i = 0;i<bgmtKpiRetList.size();i++){
                 BgmtKpiRet bgmtKpiRet = bgmtKpiRetList.get(i);
                 // 获取所有考评人
@@ -134,7 +136,7 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
 
                 bgmtKpiRetList.set(i,bgmtKpiRet);
             }
-            wsKpiScoreRetFormIPage.setRecords(bgmtKpiRetList);
+            wsKpiScoreRetFormIPage.setRecords(bgmtKpiRetList);*/
             logger.debug("查询考评结果列表成功");
         } catch (Exception e) {
             logger.error("查询考评结果列表异常", e);
@@ -152,10 +154,14 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
             IPage<BgmtKpiRet> wsKpiScoreRetFormIPage = kpiRet(month,pageable);
             Map dataMap = new HashMap();
             List<Map<String, Object>> list=new ArrayList<Map<String,Object>>();
+            //JSONArray.parseArray(JSON.toJSONString(wsKpiScoreRetFormIPage.getRecords()),Map.class);
             for(int i = 0 ;i<wsKpiScoreRetFormIPage.getRecords().size();i++){
                 Map<String, Object>map=new HashMap<String, Object>();
                 map.put("deptName", wsKpiScoreRetFormIPage.getRecords().get(i).getDeptName());
                 map.put("assessedName",  wsKpiScoreRetFormIPage.getRecords().get(i).getAssessedName());
+                map.put("noAssessedNum",  wsKpiScoreRetFormIPage.getRecords().get(i).getNoAssessedNum());
+                map.put("assessedNum",  wsKpiScoreRetFormIPage.getRecords().get(i).getAssessedNum());
+
                 map.put("noAssessNum",  wsKpiScoreRetFormIPage.getRecords().get(i).getNoAssessNum());
                 map.put("assessNum",  wsKpiScoreRetFormIPage.getRecords().get(i).getAssessNum());
                 map.put("avgScore",  wsKpiScoreRetFormIPage.getRecords().get(i).getAvgScore());
@@ -235,9 +241,9 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
             calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 1); // 设置为上一个月
             date = calendar.getTime();
             String month = df.format(date);
-            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(1,page);
+            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(month,page);
             bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
-            for(int i = 0;i<bgmtKpiRetList.size();i++){
+            /*for(int i = 0;i<bgmtKpiRetList.size();i++){
                 BgmtKpiRet bgmtKpiRet = bgmtKpiRetList.get(i);
                 // 获取所有考评人
                 int noAssessNum = 0;
@@ -268,7 +274,7 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
                 bgmtKpiRetList.set(i,bgmtKpiRet);
             }
             // 排序
-            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());
+            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());*/
         }catch (Exception e){
             logger.error("获取本月考评排名异常", e);
             e.printStackTrace();
@@ -283,9 +289,9 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
         try {
             IPage<BgmtKpiRet> wsKpiScoreRetFormIPage;
             Page<BgmtKpiRet> page = new Page<>(1, 9999);
-            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(1,page);
+            wsKpiScoreRetFormIPage = bgmtKpiApiMapper.BgmtKpiRet(null,page);
             bgmtKpiRetList = wsKpiScoreRetFormIPage.getRecords();
-            for(int i = 0;i<bgmtKpiRetList.size();i++){
+            /*for(int i = 0;i<bgmtKpiRetList.size();i++){
                 BgmtKpiRet bgmtKpiRet = bgmtKpiRetList.get(i);
                 // 获取所有考评人
                 int noAssessNum = 0;
@@ -316,7 +322,7 @@ public class BgmtKpiApiServiceImpl extends ServiceImpl<BgmtKpiApiMapper, WsKpiSc
                 bgmtKpiRetList.set(i,bgmtKpiRet);
             }
             // 排序
-            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());
+            bgmtKpiRetList.sort(Comparator.comparing(BgmtKpiRet::getAvgScore).reversed());*/
 
         }catch (Exception e){
             logger.error("获取考评排名异常", e);

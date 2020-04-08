@@ -1,7 +1,6 @@
 package com.xr.bgmt.controller;
 
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
@@ -28,11 +27,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * </p>
  *
  * @author yanwei
- * @since 2020-03-11
+ * @since 2020-04-07
  */
 @RestController
  @Api(tags = "绩效指标")
-@RequestMapping("/wsKpiCriterion")
+@RequestMapping("/bgmt/wsKpiCriterion")
 @CrossOrigin
 public class WsKpiCriterionController {
 
@@ -46,12 +45,11 @@ public class WsKpiCriterionController {
     @ApiOperation(value = "分页查询绩效指标列表", notes = "分页查询绩效指标列表")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "page", paramType = "query", required = true, value = "当前页"),
-        @ApiImplicitParam(name = "size", paramType = "query", required = true, value = "每页数"),
-        @ApiImplicitParam(name = "ruleId", paramType = "query",value = "规则编号")
+        @ApiImplicitParam(name = "size", paramType = "query", required = true, value = "每页数")
     })
     @GetMapping("/page")
-    public ResponseEntity<IPage<WsKpiCriterion>> findPage(@PageableDefault Pageable pageable,@Param("ruleId") String ruleId) throws ApiException {
-        IPage<WsKpiCriterion> page = wsKpiCriterionService.findPage(pageable,ruleId);
+    public ResponseEntity<IPage<WsKpiCriterion>> findPage(@PageableDefault Pageable pageable) throws ApiException {
+        IPage<WsKpiCriterion> page = wsKpiCriterionService.findPage(pageable);
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
 

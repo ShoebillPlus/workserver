@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
  * </p>
  *
  * @author yanwei
- * @since 2020-03-11
+ * @since 2020-04-07
  */
 public interface WsKpiCriterionService extends IService<WsKpiCriterion> {
       /**
@@ -20,7 +20,7 @@ public interface WsKpiCriterionService extends IService<WsKpiCriterion> {
        * @param pageable 分页对象
        * @return IPage<WsKpiCriterion>   绩效指标列表（分页）
        */
-       IPage<WsKpiCriterion> findPage(Pageable pageable,String ruleId) throws ApiException;
+       IPage<WsKpiCriterion> findPage(Pageable pageable) throws ApiException;
 
       /**
        * 增加绩效指标

@@ -49,29 +49,182 @@
 
     <select id="BgmtKpiRet" resultType="com.xr.bgmt.entity.form.BgmtKpiRet">
         SELECT
-          a.`id` AS assessedId,
-          a.`name` AS  assessedName,
-          GROUP_CONCAT(DISTINCT b.`dept_id`) AS deptId,
-          GROUP_CONCAT(DISTINCT c.`name`) AS deptName,
-          GROUP_CONCAT(DISTINCT e.`id`) AS roleId,
-          GROUP_CONCAT(DISTINCT e.`name`) AS roleName,
-          GROUP_CONCAT(DISTINCT d.`id`) AS ruleId,
-          GROUP_CONCAT(DISTINCT d.`name`) AS ruleName
+        aa.assessedId,
+        aa.assessedName,
+        aa.deptId,
+        aa.deptName,
+        aa.roleId,
+        aa.roleName,
+        aa.ruleId,
+        aa.ruleName,
+        IFNULL(bb.svg, 0.00) AS avgScore,
+        cc.noAssessedNum,
+        cc.assessedNum,
+        cc.noAssessNum,
+        cc.assessNum
         FROM
-          `t_sys_user` a
-          LEFT JOIN `t_sys_user_depts_roles` b
-          ON a.`id` = b.`user_id`
-          LEFT JOIN `t_sys_dept` c
-          ON b.`dept_id` = c.`id`
-          LEFT JOIN `t_sys_role` e
-          ON b.`role_id` = e.`id`
-          LEFT JOIN `t_ws_kpi_rule` d
-          ON FIND_IN_SET(e.`type`,d.`apply_role_type`)
+        (SELECT
+        a.`id` AS assessedId,
+        a.`name` AS assessedName,
+        GROUP_CONCAT(DISTINCT b.`dept_id`) AS deptId,
+        GROUP_CONCAT(DISTINCT c.`name`) AS deptName,
+        GROUP_CONCAT(DISTINCT e.`id`) AS roleId,
+        GROUP_CONCAT(DISTINCT e.`name`) AS roleName,
+        GROUP_CONCAT(DISTINCT d.`id`) AS ruleId,
+        GROUP_CONCAT(DISTINCT d.`name`) AS ruleName
+        FROM
+        `t_sys_user` a
+        LEFT JOIN `t_sys_user_depts_roles` b
+        ON a.`id` = b.`user_id`
+        LEFT JOIN `t_sys_dept` c
+        ON b.`dept_id` = c.`id`
+        LEFT JOIN `t_sys_role` e
+        ON b.`role_id` = e.`id`
+        LEFT JOIN `t_ws_kpi_rule` d
+        ON FIND_IN_SET(e.`type`, d.`apply_role_type`)
+        WHERE 1 = 1
+        AND a.`type` = '1'
+        AND e.`type` <![CDATA[<>]]> '0'
+        GROUP BY a.`id`) aa
+        LEFT JOIN
+        (SELECT
+        assessed_id,
+        ROUND(SUM(total_score) / COUNT(*), 2) AS svg
+        FROM
+        `t_ws_kpi_score_ret`
         WHERE 1=1
-        <if test="type != null">
-            AND a.`type`= #{type}
+        <if test=" month != null and month != ''">
+            AND `month` =  #{month}
         </if>
-        GROUP BY a.`id`
+        GROUP BY assessed_id) bb
+        ON aa.assessedId = bb.assessed_id
+        LEFT JOIN
+        (SELECT m.id,
+        m.num1-m.kpi1 AS noAssessNum,
+        m.kpi1 AS assessNum,
+        n.num2 - n.kpi2 AS noAssessedNum,
+        n.kpi2 AS assessedNum
+        FROM (
+        SELECT
+        d.assessor_id AS id,
+        COUNT(d.assessed_id) AS num1,
+        COUNT(d.kpi_id) AS kpi1
+        FROM
+        (
+        SELECT DISTINCT
+        a.id AS assessor_id,
+        b.id AS assessed_id,
+        c.id AS kpi_id
+        FROM
+        (SELECT
+        aa.id,
+        aaa.`dept_id`
+        FROM
+        `t_sys_user` aa
+        LEFT JOIN `t_sys_user_depts_roles` aaa
+        ON aa.id = aaa.`user_id`
+        WHERE aa.`type` <![CDATA[<>]]> '0'
+        UNION
+        SELECT aaaa.`user_id`,aaaa.dept_id
+        FROM `t_ws_kpi_dept` aaaa
+        WHERE 1=1
+        <if test = " month != null and month != ''">
+        AND aaaa.`month` = #{month}
+        </if>
+        ) a
+        LEFT JOIN
+        (SELECT
+        bb.id,
+        bbb.`dept_id`
+        FROM
+        `t_sys_user` bb
+        LEFT JOIN `t_sys_user_depts_roles` bbb
+        ON bb.id = bbb.`user_id`
+        LEFT JOIN `t_sys_role` bbbb
+        ON bbb.role_id = bbbb.`id`
+        WHERE bb.`type` <![CDATA[<>]]> '0'
+        AND bbbb.`type` <![CDATA[<>]]> '3'
+        AND bbbb.`type` <![CDATA[<>]]> '0'
+        UNION
+        SELECT aaaa.`user_id`,aaaa.dept_id
+        FROM `t_ws_kpi_dept` aaaa
+        WHERE 1= 1
+        <if test = " month != null and month != ''">
+        AND aaaa.`month` = #{month}
+        </if>
+        ) b
+        ON a.dept_id = b.dept_id
+        LEFT JOIN `t_ws_kpi_score_ret` c
+        ON a.id = c.`assessor_id`
+        AND b.id = c.`assessed_id`
+        <if test = " month != null and month != ''">
+        AND c.`month` = #{month}
+        </if>
+        WHERE a.id <![CDATA[<>]]> b.id  ORDER BY assessor_id,assessed_id) d
+        GROUP BY d.assessor_id) m
+        LEFT JOIN
+        (SELECT
+        d.assessed_id AS id,
+        COUNT(d.assessor_id) AS num2,
+        COUNT(d.kpi_id) AS kpi2
+        FROM
+        (
+        SELECT DISTINCT
+        a.id AS assessor_id,
+        b.id AS assessed_id,
+        c.id AS kpi_id
+        FROM
+        (SELECT
+        aa.id,
+        aaa.`dept_id`
+        FROM
+        `t_sys_user` aa
+        LEFT JOIN `t_sys_user_depts_roles` aaa
+        ON aa.id = aaa.`user_id`
+        WHERE aa.`type` <![CDATA[<>]]> '0'
+        UNION
+        SELECT aaaa.`user_id`,aaaa.dept_id
+        FROM `t_ws_kpi_dept` aaaa
+        WHERE 1=1
+        <if test = " month != null and month != ''">
+         AND aaaa.`month` = #{month}
+        </if>
+        ) a
+        LEFT JOIN
+        (SELECT
+        bb.id,
+        bbb.`dept_id`
+        FROM
+        `t_sys_user` bb
+        LEFT JOIN `t_sys_user_depts_roles` bbb
+        ON bb.id = bbb.`user_id`
+        LEFT JOIN `t_sys_role` bbbb
+        ON bbb.role_id = bbbb.`id`
+        WHERE bb.`type` <![CDATA[<>]]> '0'
+        AND bbbb.`type` <![CDATA[<>]]> '3'
+        AND bbbb.`type` <![CDATA[<>]]> '0'
+        UNION
+        SELECT aaaa.`user_id`,aaaa.dept_id
+        FROM `t_ws_kpi_dept` aaaa
+        WHERE 1=1
+        <if test = " month != null and month != ''">
+        and aaaa.`month` = #{month}
+        </if>
+        ) b
+        ON a.dept_id = b.dept_id
+        LEFT JOIN `t_ws_kpi_score_ret` c
+        ON a.id = c.`assessor_id`
+        AND b.id = c.`assessed_id`
+        <if test = " month != null and month != ''">
+        AND c.`month` = #{month}
+        </if>
+        WHERE a.id <![CDATA[<>]]> b.id  ORDER BY assessor_id,assessed_id) d
+        GROUP BY d.assessed_id) n
+        ON n.id = m.id
+        ) cc
+        ON aa.assessedId = cc.id
+        ORDER BY avgScore DESC,
+        assessedId
     </select>
 
 

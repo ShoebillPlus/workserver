@@ -21,7 +21,6 @@ repositories {
 //        flatDir {  dirs 'local_jars' }
     mavenCentral()
 }
-
 ext {
     set('springCloudVersion', 'Greenwich.RELEASE')
 }
@@ -45,6 +44,7 @@ dependencies {
     compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1'
     compile group: 'com.baomidou', name: 'mybatis-plus-generator', version: '3.3.1'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-quartz', version: '2.1.5.RELEASE'
 }
 dependencyManagement {
     imports {

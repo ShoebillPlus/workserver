@@ -1,6 +1,5 @@
 package com.xr.bgmt.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
@@ -18,7 +17,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author yanwei
- * @since 2020-03-11
+ * @since 2020-04-07
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -62,7 +61,6 @@ public class WsKpiCriterion extends Model<WsKpiCriterion> {
     @ApiModelProperty(name = "remark", value = "备注")
     private String remark;
 
-    @TableField(select = false)
     private List<WsKpiLevel> wsKpiLevelList;
 
     @Override

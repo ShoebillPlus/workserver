@@ -7,6 +7,8 @@ import com.xr.bgmt.entity.form.SysUserForm;
 import com.xr.bgmt.exception.ApiException;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * <p>
  * 人员信息 服务类
@@ -36,4 +38,10 @@ public interface SysUserService extends IService<SysUser> {
 
     public  SysUser findByOpenid(String paramString)
             throws ApiException;
+
+    List<SysUser> findByMinister(Long id) throws ApiException;
+
+    List<SysUser> findBySameDept(Long id,String month) throws ApiException;
+
+    int checkDept(Long id1,Long id2) throws ApiException;
 }
